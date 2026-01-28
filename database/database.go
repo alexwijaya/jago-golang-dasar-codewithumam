@@ -3,16 +3,16 @@ package database
 import (
 	"context"
 	"log"
-	"os"
 
 	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/spf13/viper"
 )
 
 var DB *pgxpool.Pool
 
 func Connect() {
 	var err error
-	databaseUrl := os.Getenv("DATABASE_URL")
+	databaseUrl := viper.GetString("DATABASE_URL")
 	if databaseUrl == "" {
 		log.Fatalf("DATABASE_URL is not set")
 	}

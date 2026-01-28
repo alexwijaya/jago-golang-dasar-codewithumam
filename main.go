@@ -10,17 +10,18 @@ import (
 	"cashier/repositories"
 	"cashier/services"
 	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
+	"github.com/spf13/viper"
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
-	log.Println(".env file loaded successfully")
+	viper.AutomaticEnv()
 
-	port := os.Getenv("PORT")
+	if _, err := os.Stat(".env"); err == nil {
+		viper.SetConfigFile(".env")
+		_ = viper.ReadInConfig()
+	}
+
+	port := viper.GetString("PORT")
 	if port == "" {
 		port = "8080"
 	}
@@ -55,7 +56,7 @@ func main() {
 	r.HandleFunc("/products/{id}", productHandler.DeleteProduct).Methods("DELETE")
 
 	log.Printf("Server is about to start on :%s", port)
-	err = http.ListenAndServe(":"+port, r)
+	err := http.ListenAndServe(":"+port, r)
 	if err != nil {
 		log.Fatalf("Server failed to start: %v", err)
 	}
