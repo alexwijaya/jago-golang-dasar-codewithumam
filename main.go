@@ -44,6 +44,10 @@ func main() {
 	transactionService := services.NewTransactionService(transactionRepo, productRepo)
 	transactionHandler := handlers.NewTransactionHandler(transactionService)
 
+	// Initialize layers for reports
+	reportService := services.NewReportService(transactionRepo)
+	reportHandler := handlers.NewReportHandler(reportService)
+
 	r := mux.NewRouter()
 
 	// Routes for categories
@@ -62,6 +66,9 @@ func main() {
 
 	// Routes for transactions
 	r.HandleFunc("/checkout", transactionHandler.ProcessCheckout).Methods("POST")
+
+	// Routes for reports
+	r.HandleFunc("/report/hari-ini", reportHandler.GetTodaysSales).Methods("GET")
 
 	log.Printf("Server is about to start on :%s", port)
 	err := http.ListenAndServe(":"+port, r)
