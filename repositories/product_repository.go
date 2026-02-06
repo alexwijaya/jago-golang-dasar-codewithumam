@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"strings"
 
 	"cashier/model"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -10,6 +11,7 @@ import (
 type ProductRepository interface {
 	FindWithFilters(filter model.ProductFilter) ([]model.ProductResponse, error)
 	FindByID(id int) (model.ProductResponse, error)
+	FindRawByID(id int) (model.Product, error)
 	Save(product model.Product) (model.Product, error)
 	Update(product model.Product) (model.Product, error)
 	Delete(id int) error
@@ -60,6 +62,15 @@ func (r *productRepository) FindWithFilters(filter model.ProductFilter) ([]model
 func (r *productRepository) FindByID(id int) (model.ProductResponse, error) {
 	var product model.ProductResponse
 	err := r.db.QueryRow(context.Background(), "SELECT p.id, p.name, p.price, p.stock, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id WHERE p.id = $1", id).Scan(&product.ID, &product.Name, &product.Price, &product.Stock, &product.CategoryName)
+	if err != nil {
+		return product, err
+	}
+	return product, nil
+}
+
+func (r *productRepository) FindRawByID(id int) (model.Product, error) {
+	var product model.Product
+	err := r.db.QueryRow(context.Background(), "SELECT id, name, price, stock FROM products WHERE id = $1", id).Scan(&product.ID, &product.Name, &product.Price, &product.Stock)
 	if err != nil {
 		return product, err
 	}

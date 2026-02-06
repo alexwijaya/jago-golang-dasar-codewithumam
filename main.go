@@ -39,6 +39,11 @@ func main() {
 	productService := services.NewProductService(productRepo)
 	productHandler := handlers.NewProductHandler(productService)
 
+	// Initialize layers for transactions
+	transactionRepo := repositories.NewTransactionRepository(database.DB)
+	transactionService := services.NewTransactionService(transactionRepo, productRepo)
+	transactionHandler := handlers.NewTransactionHandler(transactionService)
+
 	r := mux.NewRouter()
 
 	// Routes for categories
@@ -54,6 +59,9 @@ func main() {
 	r.HandleFunc("/products", productHandler.CreateProduct).Methods("POST")
 	r.HandleFunc("/products/{id}", productHandler.UpdateProduct).Methods("PUT")
 	r.HandleFunc("/products/{id}", productHandler.DeleteProduct).Methods("DELETE")
+
+	// Routes for transactions
+	r.HandleFunc("/checkout", transactionHandler.ProcessCheckout).Methods("POST")
 
 	log.Printf("Server is about to start on :%s", port)
 	err := http.ListenAndServe(":"+port, r)
