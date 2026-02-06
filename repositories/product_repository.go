@@ -8,7 +8,7 @@ import (
 )
 
 type ProductRepository interface {
-	FindAll() ([]model.ProductResponse, error)
+	FindWithFilters(filter model.ProductFilter) ([]model.ProductResponse, error)
 	FindByID(id int) (model.ProductResponse, error)
 	Save(product model.Product) (model.Product, error)
 	Update(product model.Product) (model.Product, error)
@@ -23,9 +23,24 @@ func NewProductRepository(db *pgxpool.Pool) ProductRepository {
 	return &productRepository{db}
 }
 
-func (r *productRepository) FindAll() ([]model.ProductResponse, error) {
+func (r *productRepository) FindWithFilters(filter model.ProductFilter) ([]model.ProductResponse, error) {
 	var products []model.ProductResponse
-	rows, err := r.db.Query(context.Background(), "SELECT p.id, p.name, p.price, p.stock, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id")
+	
+	baseQuery := "SELECT p.id, p.name, p.price, p.stock, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id"
+	whereConditions := []string{}
+	args := []interface{}{}
+	
+	if filter.Name != nil {
+		whereConditions = append(whereConditions, "p.name ILIKE $1")
+		args = append(args, "%"+*filter.Name+"%")
+	}
+	
+	finalQuery := baseQuery
+	if len(whereConditions) > 0 {
+		finalQuery += " WHERE " + strings.Join(whereConditions, " AND ")
+	}
+	
+	rows, err := r.db.Query(context.Background(), finalQuery, args...)
 	if err != nil {
 		return nil, err
 	}

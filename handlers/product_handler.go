@@ -20,7 +20,14 @@ func NewProductHandler(service services.ProductService) *ProductHandler {
 
 func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	products, err := h.service.GetAllProducts()
+	
+	filter := model.ProductFilter{}
+	
+	if name := r.URL.Query().Get("name"); name != "" {
+		filter.Name = &name
+	}
+	
+	products, err := h.service.GetProductsWithFilters(filter)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to fetch products"})

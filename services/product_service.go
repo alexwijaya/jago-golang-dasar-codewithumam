@@ -6,7 +6,7 @@ import (
 )
 
 type ProductService interface {
-	GetAllProducts() ([]model.ProductResponse, error)
+	GetProductsWithFilters(filter model.ProductFilter) ([]model.ProductResponse, error)
 	GetProductByID(id int) (model.ProductResponse, error)
 	CreateProduct(product model.Product) (model.Product, error)
 	UpdateProduct(id int, product model.Product) (model.Product, error)
@@ -21,8 +21,8 @@ func NewProductService(repo repositories.ProductRepository) ProductService {
 	return &productService{repo}
 }
 
-func (s *productService) GetAllProducts() ([]model.ProductResponse, error) {
-	return s.repo.FindAll()
+func (s *productService) GetProductsWithFilters(filter model.ProductFilter) ([]model.ProductResponse, error) {
+	return s.repo.FindWithFilters(filter)
 }
 
 func (s *productService) GetProductByID(id int) (model.ProductResponse, error) {
