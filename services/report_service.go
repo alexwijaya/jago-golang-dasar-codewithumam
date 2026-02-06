@@ -1,12 +1,15 @@
 package services
 
 import (
+	"time"
+
 	"cashier/model"
 	"cashier/repositories"
 )
 
 type ReportService interface {
-	GetTodaysSalesSummary() (model.SalesSummary, error)
+	GetTodaysSalesReport() (model.SalesSummary, error)
+	GetSalesReportByDateRange(startDate, endDate time.Time) (model.SalesSummary, error)
 }
 
 type reportService struct {
@@ -19,6 +22,10 @@ func NewReportService(transactionRepo repositories.TransactionRepository) Report
 	}
 }
 
-func (s *reportService) GetTodaysSalesSummary() (model.SalesSummary, error) {
+func (s *reportService) GetTodaysSalesReport() (model.SalesSummary, error) {
 	return s.transactionRepo.GetTodaysSalesReport()
+}
+
+func (s *reportService) GetSalesReportByDateRange(startDate, endDate time.Time) (model.SalesSummary, error) {
+	return s.transactionRepo.GetSalesReportByDateRange(startDate, endDate)
 }

@@ -27,7 +27,7 @@ func NewProductRepository(db *pgxpool.Pool) ProductRepository {
 
 func (r *productRepository) FindWithFilters(filter model.ProductFilter) ([]model.ProductResponse, error) {
 	var products []model.ProductResponse
-	
+
 	baseQuery := "SELECT p.id, p.name, p.price, p.stock, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id"
 	whereConditions := []string{}
 	args := []interface{}{}

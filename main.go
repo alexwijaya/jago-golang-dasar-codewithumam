@@ -68,7 +68,8 @@ func main() {
 	r.HandleFunc("/checkout", transactionHandler.ProcessCheckout).Methods("POST")
 
 	// Routes for reports
-	r.HandleFunc("/report/hari-ini", reportHandler.GetTodaysSales).Methods("GET")
+	r.HandleFunc("/report/hari-ini", reportHandler.GetTodaysSalesReport).Methods("GET")
+	r.HandleFunc("/report", reportHandler.GetSalesReport).Methods("GET")
 
 	log.Printf("Server is about to start on :%s", port)
 	err := http.ListenAndServe(":"+port, r)
